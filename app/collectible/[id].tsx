@@ -1,0 +1,121 @@
+import { Image } from 'expo-image';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
+import { BodyText, LcdScreen, PixelButton, PixelCard, PixelText } from '@/components/pixel-ui';
+import { useCollectiverse } from '@/context/collectiverse-context';
+import { useGameBoyButtons } from '@/context/gameboy-controls';
+import { palette } from '@/lib/theme';
+
+export default function CollectibleDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { collectibles, decks } = useCollectiverse();
+  const item = collectibles.find((entry) => entry.id === id);
+
+  useGameBoyButtons({
+    b: () => router.replace('/my-vault'),
+    start: () => router.replace('/my-vault'),
+  });
+
+  if (!item) {
+    return <Redirect href="/my-vault" />;
+  }
+
+  const deck = decks.find((entry) => entry.id === item.deckId);
+
+  return (
+    <LcdScreen title="COLLECTIBLE">
+      <Image source={{ uri: item.imageUri }} style={styles.hero} />
+      <PixelText style={styles.title}>{item.name}</PixelText>
+      {deck ? (
+        <BodyText style={styles.deck}>
+          {deck.icon} {deck.name}
+        </BodyText>
+      ) : null}
+      {item.description ? <BodyText style={styles.body}>{item.description}</BodyText> : null}
+
+      <PixelCard>
+        <MetaRow label="CONDITION" value={item.condition} />
+        {item.year ? <MetaRow label="YEAR" value={item.year} /> : null}
+        {item.setName ? <MetaRow label="SET" value={item.setName} /> : null}
+        {item.notes ? <MetaRow label="NOTES" value={item.notes} /> : null}
+      </PixelCard>
+
+      <PixelCard>
+        <PixelText style={styles.mintEyebrow}>IN WALLET · POLYGON</PixelText>
+        <BodyText style={styles.mintTitle}>
+          {item.minted ? `Token #${item.tokenId}` : 'Not minted yet'}
+        </BodyText>
+        {item.txHash ? (
+          <BodyText style={styles.tx} numberOfLines={2}>
+            {item.txHash}
+          </BodyText>
+        ) : null}
+        <BodyText style={styles.mintNote}>
+          Preview mint. Swap lib/mint/polygon.ts to write this to Amoy, then mainnet.
+        </BodyText>
+      </PixelCard>
+
+      <PixelButton ghost label="BACK TO VAULT" onPress={() => router.replace('/my-vault')} />
+    </LcdScreen>
+  );
+}
+
+function MetaRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View>
+      <PixelText style={styles.metaLabel}>{label}</PixelText>
+      <BodyText style={styles.metaValue}>{value}</BodyText>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  hero: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: palette.card,
+  },
+  title: {
+    fontSize: 10,
+    lineHeight: 16,
+    color: palette.white,
+    textAlign: 'center',
+  },
+  deck: {
+    fontSize: 16,
+    color: palette.lavender,
+    textAlign: 'center',
+  },
+  body: {
+    fontSize: 16,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  mintEyebrow: {
+    fontSize: 7,
+    lineHeight: 12,
+    color: palette.gold,
+  },
+  mintTitle: {
+    fontSize: 20,
+    color: palette.accent,
+  },
+  tx: {
+    fontSize: 14,
+    color: palette.muted,
+  },
+  mintNote: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  metaLabel: {
+    fontSize: 7,
+    lineHeight: 12,
+    color: palette.gold,
+  },
+  metaValue: {
+    fontSize: 17,
+    color: palette.white,
+  },
+});
