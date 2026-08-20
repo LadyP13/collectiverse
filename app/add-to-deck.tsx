@@ -20,7 +20,7 @@ import { CONDITIONS, palette, type Condition } from '@/lib/theme';
 export default function AddCollectibleScreen() {
   const params = useLocalSearchParams<{ deckId?: string | string[] }>();
   const incomingDeckId = Array.isArray(params.deckId) ? params.deckId[0] : params.deckId;
-  const { session, decks, mintNewCollectible } = useCollectiverse();
+  const { identity, decks, saveCollectible } = useCollectiverse();
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -30,12 +30,12 @@ export default function AddCollectibleScreen() {
   const [notes, setNotes] = useState('');
   const [condition, setCondition] = useState<Condition>('Near Mint');
   const [deckId, setDeckId] = useState(incomingDeckId ?? decks[0]?.id ?? '');
-  const [minting, setMinting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canMint = useMemo(
-    () => Boolean(imageUri && name.trim() && deckId && !minting),
-    [deckId, imageUri, minting, name],
+  const canSave = useMemo(
+    () => Boolean(imageUri && name.trim() && deckId && !saving),
+    [deckId, imageUri, name, saving],
   );
 
   const capture = async (fromLibrary: boolean) => {
@@ -43,13 +43,13 @@ export default function AddCollectibleScreen() {
     if (uri) setImageUri(uri);
   };
 
-  const onMint = async () => {
-    if (!canMint || !imageUri) return;
+  const onSave = async () => {
+    if (!canSave || !imageUri) return;
     setError(null);
-    setMinting(true);
+    setSaving(true);
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const minted = await mintNewCollectible({
+      const saved = await saveCollectible({
         deckId,
         name,
         description,
@@ -60,22 +60,22 @@ export default function AddCollectibleScreen() {
         notes,
       });
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace(`/collectible/${minted.id}`);
+      router.replace(`/collectible/${saved.id}`);
     } catch {
-      setError('Mint failed. Try again.');
+      setError('Save failed. Try again.');
     } finally {
-      setMinting(false);
+      setSaving(false);
     }
   };
 
   useGameBoyButtons({
     a: () => {
-      void onMint();
+      void onSave();
     },
     b: () => router.back(),
   });
 
-  if (!session) {
+  if (!identity) {
     return <Redirect href="/" />;
   }
 
@@ -85,7 +85,7 @@ export default function AddCollectibleScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <LcdScreen title="ADD TO DECK">
-        <BodyText style={styles.subtitle}>Capture it. Tell its story. Mint it.</BodyText>
+        <BodyText style={styles.subtitle}>Capture it. Tell its story. Save it.</BodyText>
 
         <View style={styles.cameraFrame}>
           {imageUri ? (
@@ -168,12 +168,12 @@ export default function AddCollectibleScreen() {
 
         {error ? <BodyText style={styles.error}>{error}</BodyText> : null}
 
-        {minting ? (
+        {saving ? (
           <ActivityIndicator color={palette.accent} />
         ) : (
-          <PixelButton label="MINT ON POLYGON" onPress={() => void onMint()} disabled={!canMint} />
+          <PixelButton label="SAVE TO COLLECTION" onPress={() => void onSave()} disabled={!canSave} />
         )}
-        <BodyText style={styles.mintHint}>Preview mint · A MINT · B BACK</BodyText>
+        <BodyText style={styles.saveHint}>Saved locally · A SAVE · B BACK</BodyText>
         <PixelButton ghost label="BACK TO VAULT" onPress={() => router.back()} />
       </LcdScreen>
     </KeyboardAvoidingView>
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 6,
   },
-  mintHint: {
+  saveHint: {
     fontSize: 14,
     textAlign: 'center',
     color: palette.muted,
