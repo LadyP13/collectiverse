@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 
 import { BodyText, PixelMenu, PixelText } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
-import { useGameBoyButtons } from '@/context/gameboy-controls';
+import { useGameBoyButtons, useGameBoyControls } from '@/context/gameboy-controls';
 import {
   isPartnershipWorldUnlocked,
   openPartnershipWorld,
@@ -39,7 +39,7 @@ function statusFor(elapsed: number) {
 
 export default function SplashScreen() {
   const { ready, identity } = useCollectiverse();
-  const { showToast } = useGameBoyButtons as never;
+  const { showToast } = useGameBoyControls();
   const [view, setView] = useState<HomeView>(hasBooted ? 'menu' : 'dial');
   const [blink, setBlink] = useState(true);
   const [dialing, setDialing] = useState(false);
