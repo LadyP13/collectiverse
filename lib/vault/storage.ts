@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import type { Collectible, Deck, VaultState } from '@/lib/vault/types';
 
 const VAULT_KEY = 'collectiverse.vault.v1';
+const IDENTITY_KEY = 'collectiverse.identity.v1';
 
 const STARTER_DECKS: Deck[] = [
   {
@@ -51,6 +52,15 @@ export async function loadVault(): Promise<VaultState> {
 
 export async function saveVault(state: VaultState) {
   await AsyncStorage.setItem(VAULT_KEY, JSON.stringify(state));
+}
+
+export async function getOrCreateLocalUid(): Promise<string> {
+  const existing = await AsyncStorage.getItem(IDENTITY_KEY);
+  if (existing) return existing;
+
+  const uid = newId('cv-user');
+  await AsyncStorage.setItem(IDENTITY_KEY, uid);
+  return uid;
 }
 
 export function newId(prefix: string) {
