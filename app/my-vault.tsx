@@ -4,13 +4,13 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { PartnershipWorldDoor } from '@/components/partnership-world-door';
 import { BodyText, LcdScreen, PixelButton, PixelText } from '@/components/pixel-ui';
-import { providerLabel, shortAddress, useCollectiverse } from '@/context/collectiverse-context';
+import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
 import { palette } from '@/lib/theme';
 import { collectiblesInDeck } from '@/lib/vault/storage';
 
 export default function MyVaultScreen() {
-  const { session, decks, collectibles } = useCollectiverse();
+  const { identity, decks, collectibles } = useCollectiverse();
 
   useGameBoyButtons({
     a: () => router.push('/add-to-deck'),
@@ -18,27 +18,23 @@ export default function MyVaultScreen() {
     start: () => router.replace('/'),
   });
 
-  if (!session) {
+  if (!identity) {
     return <Redirect href="/" />;
   }
 
   return (
     <LcdScreen title="MY VAULT">
       <Pressable onPress={() => router.push('/settings')}>
-        <BodyText style={styles.wallet}>
-          {providerLabel(session.provider).toUpperCase()}
-          {session.isMock ? ' · PREVIEW' : ''} · {shortAddress(session.address)}
-          {'  '}SET
-        </BodyText>
+        <BodyText style={styles.identity}>COLLECTIVERSE · {identity.uid}</BodyText>
       </Pressable>
 
       <PixelText style={styles.section}>COLLECTION</PixelText>
 
       {collectibles.length === 0 ? (
         <View style={styles.empty}>
-          <BodyText style={styles.emptyTitle}>Your vault is waiting.</BodyText>
+          <BodyText style={styles.emptyTitle}>Your collection is waiting.</BodyText>
           <BodyText style={styles.emptyText}>
-            Photograph a collectible, tell its story, mint it into a deck.
+            Photograph a collectible, tell its story, and save it to a deck.
           </BodyText>
         </View>
       ) : (
@@ -93,8 +89,8 @@ export default function MyVaultScreen() {
 }
 
 const styles = StyleSheet.create({
-  wallet: {
-    fontSize: 15,
+  identity: {
+    fontSize: 14,
     textAlign: 'center',
     color: palette.lavender,
   },
