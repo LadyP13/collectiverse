@@ -2,13 +2,13 @@ import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { BodyText, LcdScreen, PixelMenu, PixelText } from '@/components/pixel-ui';
-import { providerLabel, shortAddress, useCollectiverse } from '@/context/collectiverse-context';
+import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons, useGameBoyControls } from '@/context/gameboy-controls';
 import { setSfxMuted, useSfxMuted } from '@/lib/sfx';
 import { palette } from '@/lib/theme';
 
 export default function SettingsScreen() {
-  const { session, disconnect } = useCollectiverse();
+  const { identity } = useCollectiverse();
   const { showToast } = useGameBoyControls();
   const muted = useSfxMuted();
 
@@ -22,43 +22,19 @@ export default function SettingsScreen() {
   return (
     <LcdScreen title="SETTINGS" dpadScroll={false}>
       <BodyText style={styles.blurb}>
-        A pocket universe for the things you love. Preview wallets. Polygon mint lives in
-        lib/mint/polygon.ts.
+        A pocket universe for the things you love. Your V1 collection stays local to this device.
       </BodyText>
 
-      {session ? (
+      {identity ? (
         <>
-          <PixelText style={styles.label}>WALLET</PixelText>
-          <BodyText style={styles.value}>
-            {providerLabel(session.provider).toUpperCase()}
-            {session.isMock ? ' · PREVIEW' : ''}
-          </BodyText>
-          <BodyText style={styles.address}>{shortAddress(session.address)}</BodyText>
+          <PixelText style={styles.label}>COLLECTIVERSE UID</PixelText>
+          <BodyText style={styles.value}>{identity.uid}</BodyText>
+          <BodyText style={styles.note}>Future wallet and trading features can attach here later.</BodyText>
         </>
-      ) : (
-        <BodyText style={styles.value}>No wallet connected.</BodyText>
-      )}
+      ) : null}
 
       <PixelMenu
         items={[
-          ...(session
-            ? [
-                {
-                  id: 'disconnect',
-                  label: 'DISCONNECT',
-                  onSelect: async () => {
-                    await disconnect();
-                    router.replace('/');
-                  },
-                },
-              ]
-            : [
-                {
-                  id: 'connect',
-                  label: 'CONNECT WALLET',
-                  onSelect: () => router.replace('/'),
-                },
-              ]),
           {
             id: 'sound',
             label: muted ? 'SOUND: OFF' : 'SOUND: ON',
@@ -100,12 +76,14 @@ const styles = StyleSheet.create({
     color: palette.gold,
   },
   value: {
-    fontSize: 18,
+    fontSize: 15,
     color: palette.white,
   },
-  address: {
-    fontSize: 18,
-    color: palette.lavender,
+  note: {
+    fontSize: 14,
+    lineHeight: 18,
+    color: palette.muted,
+    marginTop: 4,
     marginBottom: 8,
   },
 });
