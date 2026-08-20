@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 import { BodyText, PixelMenu, PixelText } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
-import { useGameBoyButtons, useGameBoyControls } from '@/context/gameboy-controls';
+import { useGameBoyButtons } from '@/context/gameboy-controls';
 import {
   isPartnershipWorldUnlocked,
   openPartnershipWorld,
@@ -13,11 +13,10 @@ import {
 } from '@/lib/partnership-world/bridge';
 import { playDialup, stopDialup } from '@/lib/sfx';
 import { palette } from '@/lib/theme';
-import type { WalletProviderId } from '@/lib/wallet/adapter';
 
 const bootArt = require('../assets/images/lcd-boot.png');
 
-type HomeView = 'dial' | 'boot' | 'menu' | 'wallets';
+type HomeView = 'dial' | 'boot' | 'menu';
 
 const DIAL_MS = 5200;
 const STATUS_LINES = [
@@ -39,10 +38,9 @@ function statusFor(elapsed: number) {
 }
 
 export default function SplashScreen() {
-  const { session, connect } = useCollectiverse();
-  const { showToast } = useGameBoyControls();
+  const { ready, identity } = useCollectiverse();
+  const { showToast } = useGameBoyButtons as never;
   const [view, setView] = useState<HomeView>(hasBooted ? 'menu' : 'dial');
-  const [busy, setBusy] = useState<WalletProviderId | null>(null);
   const [blink, setBlink] = useState(true);
   const [dialing, setDialing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -112,29 +110,12 @@ export default function SplashScreen() {
             a: () => setView('menu'),
             start: () => setView('menu'),
           }
-        : view === 'wallets'
-          ? {
-              b: () => setView('menu'),
-              start: () => setView('menu'),
-            }
-          : {
-              start: () => {
-                if (session) router.replace('/my-vault');
-              },
+        : {
+            start: () => {
+              if (ready && identity) router.replace('/my-vault');
             },
+          },
   );
-
-  const onConnect = async (provider: WalletProviderId) => {
-    setBusy(provider);
-    try {
-      await connect(provider);
-      router.replace('/my-vault');
-    } catch {
-      showToast('Could not connect');
-    } finally {
-      setBusy(null);
-    }
-  };
 
   if (view === 'dial') {
     const blocks = Math.min(8, Math.max(0, Math.floor((elapsed / DIAL_MS) * 8)));
@@ -152,9 +133,7 @@ export default function SplashScreen() {
         ) : (
           <>
             <PixelText style={styles.dialStatus}>NO CARRIER</PixelText>
-            <BodyText style={styles.dialHint}>
-              TAP TO DIAL{blink ? '_' : ''}
-            </BodyText>
+            <BodyText style={styles.dialHint}>TAP TO DIAL{blink ? '_' : ''}</BodyText>
           </>
         )}
       </Pressable>
@@ -170,50 +149,20 @@ export default function SplashScreen() {
     );
   }
 
-  if (view === 'wallets') {
-    return (
-      <View style={styles.screen}>
-        <Image source={bootArt} style={StyleSheet.absoluteFill} contentFit="cover" />
-        <View style={styles.dim} />
-        {busy ? (
-          <ActivityIndicator color={palette.accent} />
-        ) : (
-          <PixelMenu
-            items={[
-              { id: 'metamask', label: 'METAMASK', onSelect: () => onConnect('metamask') },
-              {
-                id: 'walletconnect',
-                label: 'WALLETCONNECT',
-                onSelect: () => onConnect('walletconnect'),
-              },
-              { id: 'back', label: 'BACK', onSelect: () => setView('menu') },
-            ]}
-            hint="A SELECT   B BACK"
-          />
-        )}
-      </View>
-    );
-  }
-
   return (
     <View style={styles.screen}>
       <Image source={bootArt} style={StyleSheet.absoluteFill} contentFit="cover" />
       <View style={styles.dim} />
       <PixelMenu
         items={[
-          session
-            ? { id: 'vault', label: 'MY VAULT', onSelect: () => router.push('/my-vault') }
-            : { id: 'connect', label: 'CONNECT WALLET', onSelect: () => setView('wallets') },
-          ...(session
-            ? [{ id: 'add', label: 'ADD TO DECK', onSelect: () => router.push('/add-to-deck') }]
-            : [
-                {
-                  id: 'vault',
-                  label: 'MY VAULT',
-                  disabled: true,
-                  onSelect: () => undefined,
-                },
-              ]),
+          {
+            id: 'vault',
+            label: 'MY VAULT',
+            disabled: !ready,
+            onSelect: () => {
+              if (ready && identity) router.push('/my-vault');
+            },
+          },
           {
             id: 'pw',
             label: 'P. WORLD',
