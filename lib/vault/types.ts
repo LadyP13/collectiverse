@@ -1,5 +1,4 @@
 import type { Condition } from '@/lib/theme';
-import type { WalletProviderId } from '@/lib/wallet/adapter';
 
 export type Deck = {
   id: string;
@@ -18,10 +17,11 @@ export type Collectible = {
   setName: string;
   condition: Condition;
   notes: string;
+  // V1 is local-only. These fields are reserved for the future minting layer.
   minted: boolean;
   tokenId: string | null;
   txHash: string | null;
-  chain: 'polygon';
+  chain: 'polygon' | null;
   mintedAt: string | null;
   createdAt: string;
 };
@@ -40,11 +40,4 @@ export type CollectibleDraft = {
 export type VaultState = {
   decks: Deck[];
   collectibles: Collectible[];
-};
-
-export type PersistedSession = {
-  address: string;
-  provider: WalletProviderId;
-  connectedAt: string;
-  isMock: boolean;
 };
