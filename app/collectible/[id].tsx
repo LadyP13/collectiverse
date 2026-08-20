@@ -42,17 +42,10 @@ export default function CollectibleDetailScreen() {
       </PixelCard>
 
       <PixelCard>
-        <PixelText style={styles.mintEyebrow}>IN WALLET · POLYGON</PixelText>
-        <BodyText style={styles.mintTitle}>
-          {item.minted ? `Token #${item.tokenId}` : 'Not minted yet'}
-        </BodyText>
-        {item.txHash ? (
-          <BodyText style={styles.tx} numberOfLines={2}>
-            {item.txHash}
-          </BodyText>
-        ) : null}
-        <BodyText style={styles.mintNote}>
-          Preview mint. Swap lib/mint/polygon.ts to write this to Amoy, then mainnet.
+        <PixelText style={styles.statusEyebrow}>COLLECTIVERSE V1</PixelText>
+        <BodyText style={styles.statusTitle}>Saved to this collection</BodyText>
+        <BodyText style={styles.statusNote}>
+          This collectible has a local identity now. Wallet minting and trading can be added later.
         </BodyText>
       </PixelCard>
 
@@ -92,20 +85,16 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
-  mintEyebrow: {
+  statusEyebrow: {
     fontSize: 7,
     lineHeight: 12,
     color: palette.gold,
   },
-  mintTitle: {
+  statusTitle: {
     fontSize: 20,
     color: palette.accent,
   },
-  tx: {
-    fontSize: 14,
-    color: palette.muted,
-  },
-  mintNote: {
+  statusNote: {
     fontSize: 14,
     lineHeight: 18,
   },
