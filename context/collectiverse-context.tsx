@@ -8,38 +8,34 @@ import {
   type ReactNode,
 } from 'react';
 
-import { mintCollectible as stubMint } from '@/lib/mint/polygon';
 import {
+  getOrCreateLocalUid,
   loadVault,
   newId,
   persistCollectibleImage,
   saveVault,
 } from '@/lib/vault/storage';
 import type { Collectible, CollectibleDraft, Deck } from '@/lib/vault/types';
-import {
-  providerLabel,
-  shortAddress,
-  walletAdapter,
-  type WalletProviderId,
-  type WalletSession,
-} from '@/lib/wallet/adapter';
+
+export type LocalIdentity = {
+  uid: string;
+  createdAt: string;
+};
 
 type CollectiverseContextValue = {
   ready: boolean;
-  session: WalletSession | null;
+  identity: LocalIdentity | null;
   decks: Deck[];
   collectibles: Collectible[];
-  connect: (provider: WalletProviderId) => Promise<void>;
-  disconnect: () => Promise<void>;
   createDeck: (name: string, icon: string) => Promise<Deck>;
-  mintNewCollectible: (draft: CollectibleDraft) => Promise<Collectible>;
+  saveCollectible: (draft: CollectibleDraft) => Promise<Collectible>;
 };
 
 const CollectiverseContext = createContext<CollectiverseContextValue | null>(null);
 
 export function CollectiverseProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
-  const [session, setSession] = useState<WalletSession | null>(null);
+  const [identity, setIdentity] = useState<LocalIdentity | null>(null);
   const [decks, setDecks] = useState<Deck[]>([]);
   const [collectibles, setCollectibles] = useState<Collectible[]>([]);
 
@@ -47,12 +43,9 @@ export function CollectiverseProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     (async () => {
-      const [nextSession, vault] = await Promise.all([
-        walletAdapter.getSession(),
-        loadVault(),
-      ]);
+      const [uid, vault] = await Promise.all([getOrCreateLocalUid(), loadVault()]);
       if (cancelled) return;
-      setSession(nextSession);
+      setIdentity({ uid, createdAt: new Date().toISOString() });
       setDecks(vault.decks);
       setCollectibles(vault.collectibles);
       setReady(true);
@@ -69,16 +62,6 @@ export function CollectiverseProvider({ children }: { children: ReactNode }) {
     await saveVault({ decks: nextDecks, collectibles: nextCollectibles });
   }, []);
 
-  const connect = useCallback(async (provider: WalletProviderId) => {
-    const next = await walletAdapter.connect(provider);
-    setSession(next);
-  }, []);
-
-  const disconnect = useCallback(async () => {
-    await walletAdapter.disconnect();
-    setSession(null);
-  }, []);
-
   const createDeck = useCallback(
     async (name: string, icon: string) => {
       const deck: Deck = {
@@ -93,20 +76,10 @@ export function CollectiverseProvider({ children }: { children: ReactNode }) {
     [collectibles, decks, persist],
   );
 
-  const mintNewCollectible = useCallback(
+  const saveCollectible = useCallback(
     async (draft: CollectibleDraft) => {
-      if (!session) {
-        throw new Error('Connect a wallet before minting.');
-      }
-
       const id = newId('col');
       const imageUri = await persistCollectibleImage(draft.imageUri, id);
-      const mint = await stubMint({
-        name: draft.name,
-        description: draft.description,
-        imageUri,
-        walletAddress: session.address,
-      });
 
       const collectible: Collectible = {
         id,
@@ -118,41 +91,30 @@ export function CollectiverseProvider({ children }: { children: ReactNode }) {
         setName: draft.setName.trim(),
         condition: draft.condition,
         notes: draft.notes.trim(),
-        minted: true,
-        tokenId: mint.tokenId,
-        txHash: mint.txHash,
-        chain: 'polygon',
-        mintedAt: mint.mintedAt,
+        minted: false,
+        tokenId: null,
+        txHash: null,
+        chain: null,
+        mintedAt: null,
         createdAt: new Date().toISOString(),
       };
 
       await persist(decks, [collectible, ...collectibles]);
       return collectible;
     },
-    [collectibles, decks, persist, session],
+    [collectibles, decks, persist],
   );
 
   const value = useMemo(
     () => ({
       ready,
-      session,
+      identity,
       decks,
       collectibles,
-      connect,
-      disconnect,
       createDeck,
-      mintNewCollectible,
+      saveCollectible,
     }),
-    [
-      ready,
-      session,
-      decks,
-      collectibles,
-      connect,
-      disconnect,
-      createDeck,
-      mintNewCollectible,
-    ],
+    [ready, identity, decks, collectibles, createDeck, saveCollectible],
   );
 
   return (
@@ -169,5 +131,3 @@ export function useCollectiverse() {
   }
   return value;
 }
-
-export { providerLabel, shortAddress };
