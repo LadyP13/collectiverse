@@ -29,8 +29,6 @@ And the GameBoy-style interface is just how I wanted to see it.
 
 ## Requirements
 
-## Requirements
-
 - Node.js
 - npm
 - Expo CLI / Expo tooling
@@ -60,7 +58,9 @@ The current development workflow uses Expo Go. A standalone development build / 
 
    npx expo start --web
         (opens browser version)
+```
 ---
+
 
 ## A Quick Tour
 
