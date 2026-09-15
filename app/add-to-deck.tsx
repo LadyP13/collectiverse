@@ -14,13 +14,16 @@ import {
 } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
+import { usePalette } from '@/context/theme-context';
 import { pickCollectiblePhoto, takeCollectiblePhoto } from '@/lib/capture-photo';
-import { CONDITIONS, palette, type Condition } from '@/lib/theme';
+import { CONDITIONS, type Condition, type Palette } from '@/lib/theme';
 
 export default function AddCollectibleScreen() {
   const params = useLocalSearchParams<{ deckId?: string | string[] }>();
   const incomingDeckId = Array.isArray(params.deckId) ? params.deckId[0] : params.deckId;
   const { identity, decks, saveCollectible } = useCollectiverse();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -180,64 +183,66 @@ export default function AddCollectibleScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: palette.lavender,
-  },
-  cameraFrame: {
-    width: '100%',
-    aspectRatio: 1.2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: palette.borderStrong,
-    backgroundColor: palette.card,
-    borderStyle: 'dashed',
-  },
-  preview: {
-    width: '100%',
-    height: '100%',
-  },
-  cameraText: {
-    fontSize: 10,
-    lineHeight: 16,
-    color: palette.gold,
-  },
-  cameraHint: {
-    marginTop: 6,
-    fontSize: 15,
-    color: palette.muted,
-    textAlign: 'center',
-  },
-  photoRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  fieldLabel: {
-    marginTop: 4,
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  saveHint: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: palette.muted,
-  },
-  error: {
-    color: palette.accent,
-    textAlign: 'center',
-    fontSize: 16,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    flex: {
+      flex: 1,
+    },
+    subtitle: {
+      fontSize: 16,
+      textAlign: 'center',
+      color: palette.lavender,
+    },
+    cameraFrame: {
+      width: '100%',
+      aspectRatio: 1.2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: palette.borderStrong,
+      backgroundColor: palette.card,
+      borderStyle: 'dashed',
+    },
+    preview: {
+      width: '100%',
+      height: '100%',
+    },
+    cameraText: {
+      fontSize: 10,
+      lineHeight: 16,
+      color: palette.gold,
+    },
+    cameraHint: {
+      marginTop: 6,
+      fontSize: 15,
+      color: palette.muted,
+      textAlign: 'center',
+    },
+    photoRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    fieldLabel: {
+      marginTop: 4,
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    chipRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+    },
+    saveHint: {
+      fontSize: 14,
+      textAlign: 'center',
+      color: palette.muted,
+    },
+    error: {
+      color: palette.accent,
+      textAlign: 'center',
+      fontSize: 16,
+    },
+  });
+}

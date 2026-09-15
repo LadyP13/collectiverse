@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -12,9 +12,15 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { usePalette } from '@/context/theme-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
 import { playBeep } from '@/lib/sfx';
-import { fonts, palette } from '@/lib/theme';
+import { fonts, type Palette } from '@/lib/theme';
+
+function useStyles() {
+  const palette = usePalette();
+  return useMemo(() => makeStyles(palette), [palette]);
+}
 
 export function PixelText({
   children,
@@ -25,6 +31,7 @@ export function PixelText({
   style?: StyleProp<TextStyle>;
   numberOfLines?: number;
 }) {
+  const styles = useStyles();
   return (
     <Text style={[styles.pixel, style]} numberOfLines={numberOfLines}>
       {children}
@@ -41,6 +48,7 @@ export function BodyText({
   style?: StyleProp<TextStyle>;
   numberOfLines?: number;
 }) {
+  const styles = useStyles();
   return (
     <Text style={[styles.body, style]} numberOfLines={numberOfLines}>
       {children}
@@ -61,6 +69,7 @@ export function LcdScreen({
   scroll?: boolean;
   dpadScroll?: boolean;
 }) {
+  const styles = useStyles();
   const scrollRef = useRef<ScrollView>(null);
   const offset = useRef(0);
 
@@ -124,6 +133,7 @@ export function PixelMenu({
   items: PixelMenuItem[];
   hint?: string;
 }) {
+  const styles = useStyles();
   const enabled = items.map((item, index) => ({ item, index })).filter((entry) => !entry.item.disabled);
   const [selected, setSelected] = useState(enabled[0]?.index ?? 0);
 
@@ -206,6 +216,7 @@ export function PixelButton({
   disabled?: boolean;
   ghost?: boolean;
 }) {
+  const styles = useStyles();
   return (
     <Pressable
       onPress={() => {
@@ -229,6 +240,8 @@ export function PixelField({
   label,
   ...inputProps
 }: { label: string } & TextInputProps) {
+  const palette = usePalette();
+  const styles = useStyles();
   return (
     <View style={styles.field}>
       <PixelText style={styles.fieldLabel}>{label}</PixelText>
@@ -250,6 +263,7 @@ export function PixelChip({
   on?: boolean;
   onPress: () => void;
 }) {
+  const styles = useStyles();
   return (
     <Pressable
       onPress={() => {
@@ -270,177 +284,180 @@ export function PixelCard({
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
+  const styles = useStyles();
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
-const styles = StyleSheet.create({
-  pixel: {
-    fontFamily: fonts.pixel,
-    color: palette.white,
-    includeFontPadding: false,
-  },
-  body: {
-    fontFamily: fonts.body,
-    color: palette.body,
-    includeFontPadding: false,
-  },
-  lcd: {
-    flex: 1,
-    backgroundColor: palette.lcd,
-  },
-  flex: {
-    flex: 1,
-  },
-  titleBar: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    backgroundColor: palette.accent,
-    borderBottomWidth: 3,
-    borderBottomColor: palette.menuBorderDark,
-  },
-  titleText: {
-    fontSize: 10,
-    lineHeight: 16,
-    textAlign: 'center',
-    color: palette.white,
-  },
-  scrollContent: {
-    padding: 10,
-    paddingBottom: 18,
-    gap: 8,
-  },
-  staticContent: {
-    padding: 10,
-  },
-  footer: {
-    padding: 8,
-    borderTopWidth: 2,
-    borderTopColor: palette.borderStrong,
-  },
-  menu: {
-    width: '100%',
-  },
-  menuInner: {
-    borderWidth: 3,
-    borderColor: palette.menuBorder,
-    backgroundColor: palette.menu,
-    padding: 4,
-  },
-  menuRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 28,
-    paddingHorizontal: 6,
-    gap: 6,
-  },
-  menuRowOn: {
-    backgroundColor: palette.selectBar,
-  },
-  menuRowDisabled: {
-    opacity: 0.45,
-  },
-  menuCursor: {
-    width: 12,
-    fontSize: 10,
-    lineHeight: 16,
-    color: palette.cursor,
-  },
-  menuCursorOff: {
-    color: 'transparent',
-  },
-  menuLabel: {
-    flex: 1,
-    fontSize: 8,
-    lineHeight: 14,
-    color: palette.menuInk,
-  },
-  menuLabelOn: {
-    color: palette.white,
-  },
-  menuLabelDisabled: {
-    color: palette.menuMuted,
-  },
-  hint: {
-    marginTop: 8,
-    fontSize: 16,
-    lineHeight: 18,
-    textAlign: 'center',
-    color: palette.gold,
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 36,
-    paddingHorizontal: 12,
-    backgroundColor: palette.accent,
-    borderWidth: 2,
-    borderColor: palette.menuBorderDark,
-  },
-  buttonGhost: {
-    backgroundColor: 'transparent',
-    borderColor: palette.borderStrong,
-  },
-  buttonText: {
-    fontSize: 8,
-    lineHeight: 14,
-    color: palette.white,
-  },
-  buttonGhostText: {
-    color: palette.lavender,
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-  pressed: {
-    opacity: 0.75,
-    transform: [{ translateY: 1 }],
-  },
-  field: {
-    gap: 4,
-  },
-  fieldLabel: {
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  input: {
-    minHeight: 36,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderWidth: 2,
-    borderColor: palette.borderStrong,
-    backgroundColor: palette.card,
-    color: palette.white,
-    fontFamily: fonts.body,
-    fontSize: 18,
-  },
-  multiline: {
-    minHeight: 68,
-    textAlignVertical: 'top',
-  },
-  chip: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-  },
-  chipOn: {
-    borderColor: palette.accent,
-    backgroundColor: '#2a1238',
-  },
-  chipText: {
-    fontSize: 16,
-    color: palette.lavender,
-  },
-  chipTextOn: {
-    color: palette.white,
-  },
-  card: {
-    padding: 10,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-    gap: 6,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    pixel: {
+      fontFamily: fonts.pixel,
+      color: palette.white,
+      includeFontPadding: false,
+    },
+    body: {
+      fontFamily: fonts.body,
+      color: palette.body,
+      includeFontPadding: false,
+    },
+    lcd: {
+      flex: 1,
+      backgroundColor: palette.lcd,
+    },
+    flex: {
+      flex: 1,
+    },
+    titleBar: {
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      backgroundColor: palette.accent,
+      borderBottomWidth: 3,
+      borderBottomColor: palette.menuBorderDark,
+    },
+    titleText: {
+      fontSize: 10,
+      lineHeight: 16,
+      textAlign: 'center',
+      color: palette.white,
+    },
+    scrollContent: {
+      padding: 10,
+      paddingBottom: 18,
+      gap: 8,
+    },
+    staticContent: {
+      padding: 10,
+    },
+    footer: {
+      padding: 8,
+      borderTopWidth: 2,
+      borderTopColor: palette.borderStrong,
+    },
+    menu: {
+      width: '100%',
+    },
+    menuInner: {
+      borderWidth: 3,
+      borderColor: palette.menuBorder,
+      backgroundColor: palette.menu,
+      padding: 4,
+    },
+    menuRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      minHeight: 28,
+      paddingHorizontal: 6,
+      gap: 6,
+    },
+    menuRowOn: {
+      backgroundColor: palette.selectBar,
+    },
+    menuRowDisabled: {
+      opacity: 0.45,
+    },
+    menuCursor: {
+      width: 12,
+      fontSize: 10,
+      lineHeight: 16,
+      color: palette.cursor,
+    },
+    menuCursorOff: {
+      color: 'transparent',
+    },
+    menuLabel: {
+      flex: 1,
+      fontSize: 8,
+      lineHeight: 14,
+      color: palette.menuInk,
+    },
+    menuLabelOn: {
+      color: palette.white,
+    },
+    menuLabelDisabled: {
+      color: palette.menuMuted,
+    },
+    hint: {
+      marginTop: 8,
+      fontSize: 16,
+      lineHeight: 18,
+      textAlign: 'center',
+      color: palette.gold,
+    },
+    button: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 36,
+      paddingHorizontal: 12,
+      backgroundColor: palette.accent,
+      borderWidth: 2,
+      borderColor: palette.menuBorderDark,
+    },
+    buttonGhost: {
+      backgroundColor: 'transparent',
+      borderColor: palette.borderStrong,
+    },
+    buttonText: {
+      fontSize: 8,
+      lineHeight: 14,
+      color: palette.white,
+    },
+    buttonGhostText: {
+      color: palette.lavender,
+    },
+    disabled: {
+      opacity: 0.4,
+    },
+    pressed: {
+      opacity: 0.75,
+      transform: [{ translateY: 1 }],
+    },
+    field: {
+      gap: 4,
+    },
+    fieldLabel: {
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    input: {
+      minHeight: 36,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderWidth: 2,
+      borderColor: palette.borderStrong,
+      backgroundColor: palette.card,
+      color: palette.white,
+      fontFamily: fonts.body,
+      fontSize: 18,
+    },
+    multiline: {
+      minHeight: 68,
+      textAlignVertical: 'top',
+    },
+    chip: {
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+    },
+    chipOn: {
+      borderColor: palette.accent,
+      backgroundColor: palette.chipFill,
+    },
+    chipText: {
+      fontSize: 16,
+      color: palette.lavender,
+    },
+    chipTextOn: {
+      color: palette.white,
+    },
+    card: {
+      padding: 10,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+      gap: 6,
+    },
+  });
+}

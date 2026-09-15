@@ -9,8 +9,8 @@ import 'react-native-reanimated';
 import { GameBoyShell } from '@/components/gameboy-shell';
 import { CollectiverseProvider, useCollectiverse } from '@/context/collectiverse-context';
 import { GameBoyControlsProvider } from '@/context/gameboy-controls';
+import { AppThemeProvider, useAppTheme } from '@/context/theme-context';
 import { hydrateSfx } from '@/lib/sfx';
-import { palette } from '@/lib/theme';
 
 export const unstable_settings = {
   anchor: 'index',
@@ -18,6 +18,7 @@ export const unstable_settings = {
 
 function RootStack() {
   const { ready } = useCollectiverse();
+  const { ready: themeReady, palette } = useAppTheme();
   const [fontsLoaded, fontError] = useFonts({
     PressStart2P: require('../assets/fonts/PressStart2P-Regular.ttf'),
     VT323: require('../assets/fonts/VT323-Regular.ttf'),
@@ -27,9 +28,9 @@ function RootStack() {
     void hydrateSfx();
   }, []);
 
-  if (!ready || (!fontsLoaded && !fontError)) {
+  if (!ready || !themeReady || (!fontsLoaded && !fontError)) {
     return (
-      <View style={styles.boot}>
+      <View style={[styles.boot, { backgroundColor: palette.chassis }]}>
         <ActivityIndicator color={palette.accent} size="large" />
       </View>
     );
@@ -55,9 +56,11 @@ function RootStack() {
 
 export default function RootLayout() {
   return (
-    <CollectiverseProvider>
-      <RootStack />
-    </CollectiverseProvider>
+    <AppThemeProvider>
+      <CollectiverseProvider>
+        <RootStack />
+      </CollectiverseProvider>
+    </AppThemeProvider>
   );
 }
 
@@ -66,6 +69,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.chassis,
   },
 });

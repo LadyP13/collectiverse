@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Image } from 'expo-image';
 import { Redirect, router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -6,11 +7,14 @@ import { PartnershipWorldDoor } from '@/components/partnership-world-door';
 import { BodyText, LcdScreen, PixelButton, PixelText } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
-import { palette } from '@/lib/theme';
+import { usePalette } from '@/context/theme-context';
+import type { Palette } from '@/lib/theme';
 import { collectiblesInDeck } from '@/lib/vault/storage';
 
 export default function MyVaultScreen() {
   const { identity, decks, collectibles } = useCollectiverse();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
 
   useGameBoyButtons({
     a: () => router.push('/add-to-deck'),
@@ -88,83 +92,85 @@ export default function MyVaultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  identity: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: palette.lavender,
-  },
-  section: {
-    marginTop: 6,
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  empty: {
-    padding: 10,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-    gap: 4,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    color: palette.white,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  row: {
-    gap: 8,
-    paddingRight: 4,
-  },
-  thumb: {
-    width: 92,
-    padding: 6,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-  },
-  thumbImage: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: palette.bg,
-  },
-  thumbName: {
-    marginTop: 4,
-    fontSize: 14,
-    color: palette.white,
-  },
-  deckGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  deck: {
-    width: '47%',
-    flexGrow: 1,
-    padding: 8,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-  },
-  deckIcon: {
-    fontSize: 22,
-  },
-  deckName: {
-    fontSize: 16,
-    color: palette.white,
-  },
-  deckCount: {
-    fontSize: 14,
-    color: palette.muted,
-  },
-  hint: {
-    marginTop: 4,
-    fontSize: 14,
-    textAlign: 'center',
-    color: palette.gold,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    identity: {
+      fontSize: 14,
+      textAlign: 'center',
+      color: palette.lavender,
+    },
+    section: {
+      marginTop: 6,
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    empty: {
+      padding: 10,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+      gap: 4,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      color: palette.white,
+      textAlign: 'center',
+    },
+    emptyText: {
+      fontSize: 16,
+      textAlign: 'center',
+    },
+    row: {
+      gap: 8,
+      paddingRight: 4,
+    },
+    thumb: {
+      width: 92,
+      padding: 6,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+    },
+    thumbImage: {
+      width: '100%',
+      aspectRatio: 1,
+      backgroundColor: palette.bg,
+    },
+    thumbName: {
+      marginTop: 4,
+      fontSize: 14,
+      color: palette.white,
+    },
+    deckGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    deck: {
+      width: '47%',
+      flexGrow: 1,
+      padding: 8,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+    },
+    deckIcon: {
+      fontSize: 22,
+    },
+    deckName: {
+      fontSize: 16,
+      color: palette.white,
+    },
+    deckCount: {
+      fontSize: 14,
+      color: palette.muted,
+    },
+    hint: {
+      marginTop: 4,
+      fontSize: 14,
+      textAlign: 'center',
+      color: palette.gold,
+    },
+  });
+}

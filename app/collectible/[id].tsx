@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Image } from 'expo-image';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
@@ -5,11 +6,14 @@ import { StyleSheet, View } from 'react-native';
 import { BodyText, LcdScreen, PixelButton, PixelCard, PixelText } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
-import { palette } from '@/lib/theme';
+import { usePalette } from '@/context/theme-context';
+import type { Palette } from '@/lib/theme';
 
 export default function CollectibleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { collectibles, decks } = useCollectiverse();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const item = collectibles.find((entry) => entry.id === id);
 
   useGameBoyButtons({
@@ -35,10 +39,10 @@ export default function CollectibleDetailScreen() {
       {item.description ? <BodyText style={styles.body}>{item.description}</BodyText> : null}
 
       <PixelCard>
-        <MetaRow label="CONDITION" value={item.condition} />
-        {item.year ? <MetaRow label="YEAR" value={item.year} /> : null}
-        {item.setName ? <MetaRow label="SET" value={item.setName} /> : null}
-        {item.notes ? <MetaRow label="NOTES" value={item.notes} /> : null}
+        <MetaRow label="CONDITION" value={item.condition} styles={styles} />
+        {item.year ? <MetaRow label="YEAR" value={item.year} styles={styles} /> : null}
+        {item.setName ? <MetaRow label="SET" value={item.setName} styles={styles} /> : null}
+        {item.notes ? <MetaRow label="NOTES" value={item.notes} styles={styles} /> : null}
       </PixelCard>
 
       <PixelCard>
@@ -54,7 +58,15 @@ export default function CollectibleDetailScreen() {
   );
 }
 
-function MetaRow({ label, value }: { label: string; value: string }) {
+function MetaRow({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <PixelText style={styles.metaLabel}>{label}</PixelText>
@@ -63,48 +75,50 @@ function MetaRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  hero: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: palette.card,
-  },
-  title: {
-    fontSize: 10,
-    lineHeight: 16,
-    color: palette.white,
-    textAlign: 'center',
-  },
-  deck: {
-    fontSize: 16,
-    color: palette.lavender,
-    textAlign: 'center',
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-  statusEyebrow: {
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  statusTitle: {
-    fontSize: 20,
-    color: palette.accent,
-  },
-  statusNote: {
-    fontSize: 14,
-    lineHeight: 18,
-  },
-  metaLabel: {
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  metaValue: {
-    fontSize: 17,
-    color: palette.white,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    hero: {
+      width: '100%',
+      aspectRatio: 1,
+      backgroundColor: palette.card,
+    },
+    title: {
+      fontSize: 10,
+      lineHeight: 16,
+      color: palette.white,
+      textAlign: 'center',
+    },
+    deck: {
+      fontSize: 16,
+      color: palette.lavender,
+      textAlign: 'center',
+    },
+    body: {
+      fontSize: 16,
+      lineHeight: 20,
+      textAlign: 'center',
+    },
+    statusEyebrow: {
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    statusTitle: {
+      fontSize: 20,
+      color: palette.accent,
+    },
+    statusNote: {
+      fontSize: 14,
+      lineHeight: 18,
+    },
+    metaLabel: {
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    metaValue: {
+      fontSize: 17,
+      color: palette.white,
+    },
+  });
+}

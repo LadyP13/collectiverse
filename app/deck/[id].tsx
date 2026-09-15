@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Image } from 'expo-image';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -5,12 +6,15 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { BodyText, LcdScreen, PixelButton } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
-import { palette } from '@/lib/theme';
+import { usePalette } from '@/context/theme-context';
+import type { Palette } from '@/lib/theme';
 import { collectiblesInDeck } from '@/lib/vault/storage';
 
 export default function DeckScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { decks, collectibles } = useCollectiverse();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const deck = decks.find((entry) => entry.id === id);
 
   const add = () => {
@@ -65,57 +69,59 @@ export default function DeckScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  icon: {
-    fontSize: 28,
-    textAlign: 'center',
-  },
-  count: {
-    fontSize: 16,
-    color: palette.lavender,
-    textAlign: 'center',
-  },
-  empty: {
-    alignItems: 'center',
-    padding: 12,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    color: palette.white,
-  },
-  emptyText: {
-    marginTop: 4,
-    fontSize: 15,
-    textAlign: 'center',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  card: {
-    width: '47%',
-    flexGrow: 1,
-    padding: 6,
-    borderWidth: 2,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-  },
-  image: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: palette.bg,
-  },
-  name: {
-    marginTop: 4,
-    fontSize: 14,
-    color: palette.white,
-  },
-  meta: {
-    fontSize: 13,
-    color: palette.gold,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    icon: {
+      fontSize: 28,
+      textAlign: 'center',
+    },
+    count: {
+      fontSize: 16,
+      color: palette.lavender,
+      textAlign: 'center',
+    },
+    empty: {
+      alignItems: 'center',
+      padding: 12,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      color: palette.white,
+    },
+    emptyText: {
+      marginTop: 4,
+      fontSize: 15,
+      textAlign: 'center',
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    card: {
+      width: '47%',
+      flexGrow: 1,
+      padding: 6,
+      borderWidth: 2,
+      borderColor: palette.border,
+      backgroundColor: palette.card,
+    },
+    image: {
+      width: '100%',
+      aspectRatio: 1,
+      backgroundColor: palette.bg,
+    },
+    name: {
+      marginTop: 4,
+      fontSize: 14,
+      color: palette.white,
+    },
+    meta: {
+      fontSize: 13,
+      color: palette.gold,
+    },
+  });
+}

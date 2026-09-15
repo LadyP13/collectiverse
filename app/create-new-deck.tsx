@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { BodyText, LcdScreen, PixelButton, PixelChip, PixelField } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons } from '@/context/gameboy-controls';
-import { DECK_ICONS, palette } from '@/lib/theme';
+import { usePalette } from '@/context/theme-context';
+import { DECK_ICONS, type Palette } from '@/lib/theme';
 
 export default function CreateNewDeckScreen() {
   const { createDeck } = useCollectiverse();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const [name, setName] = useState('');
   const [icon, setIcon] = useState<(typeof DECK_ICONS)[number]>(DECK_ICONS[0]);
   const [saving, setSaving] = useState(false);
@@ -58,19 +61,21 @@ export default function CreateNewDeckScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  subtitle: {
-    fontSize: 17,
-    textAlign: 'center',
-    color: palette.lavender,
-  },
-  iconLabel: {
-    fontSize: 14,
-    color: palette.gold,
-  },
-  iconRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    subtitle: {
+      fontSize: 17,
+      textAlign: 'center',
+      color: palette.lavender,
+    },
+    iconLabel: {
+      fontSize: 14,
+      color: palette.gold,
+    },
+    iconRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+    },
+  });
+}

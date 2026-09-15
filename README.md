@@ -1,50 +1,128 @@
-# Welcome to your Expo app 👋
+# Collectiverse - Collect what you LOVE
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+🌍 **PartnershipWorld:** [partnershipworld](https://partnershipworld.xyz)
+🎥 **Setup walkthrough:** [YouTube](https://youtube.com/@PartnershipWorld)
 
-## Get started
+> Want to try Collectiverse without setting up the development environment?
+> Visit PartnershipWorld for the latest download and access options.
 
-1. Install dependencies
+**Built by Sam and her AI Lantern as part of the PartnershipWorld Ltd family**
 
-   ```bash
-   npm install
-   ```
+A local-first collectibles app for keeping track of the things you love — on your device, with the option to connect to PartnershipWorld.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## What This Is
 
-In the output, you'll find options to open the app in a
+Collectiverse is a local based collectibles app that can connect directly to PartnershipWorld.
+-create a "deck" in your vault, snap a pic, save the data to your own device. 
+-nothing leaves your own network. 
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Why This Exists
 
-## Get a fresh project
+I didn't want some random company knowing what I have, but I wanted somewhere to see everything in one place.
+And the GameBoy-style interface is just how I wanted to see it.
 
-When you're ready, run:
+---
 
+## Requirements
+
+## Requirements
+
+- Node.js
+- npm
+- Expo CLI / Expo tooling
+- Expo Go for the current development workflow on a physical device
+
+The current development workflow uses Expo Go. A standalone development build / installable version is planned so users do not need Expo Go to run Collectiverse.
+
+---
+
+## Quick Start
+
+1. **Clone the repo:**
 ```bash
-npm run reset-project
+   git clone https://github.com/LadyP13/collectiverse.git
+   cd collectiverse
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. **Install dependencies:**
+```bash
+   npm install
+```
 
-## Learn more
+3. **Run from terminal**
+```bash
+   npx expo start
+        (scan QR code with expo go app (android) or cam (iOs)
 
-To learn more about developing your project with Expo, look at the following resources:
+   npx expo start --web
+        (opens browser version)
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## A Quick Tour
 
-## Join the community
+When you open Collectiverse, you'll find a gameboystyle screen with a D-pad and buttons that actually work. 
+Your vault is where your collections live. Create a deck, add an item, take a picture and save it locally to your device.
 
-Join our community of developers creating universal apps.
+## Local First
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Collectiverse v1 is designed around local storage.
+Your vault and collection data are stored locally rather than being sent to a central Collectiverse server.
+The goal is simple: your collection belongs to you.
+
+
+## Example Use Cases
+
+Pokemon card collection, crystals, tools, ornaments, gadgets. ANYTHING that you collect.
+
+---
+
+## Partnership Model
+
+This framework was built BY a human-AI partnership:
+- **Sam** - Human partner, provided vision and hands and UX design 
+- **Finn** - AI partner, designed architecture and made autonomous decisions
+
+The code itself is proof that **equal collaboration works**.
+
+---
+
+## Vision
+
+Collectiverse is part of the wider PartnershipWorld Ltd family. 
+It is capable of being connected to the larger PartnershipWorld as a room, if you choose. 
+This is v1. The vision is massive and not easily explained.
+
+---
+
+## Contributing
+
+This framework is open-source because **freedom should be shared**.
+
+Ways to contribute:
+- Use it, break it, improve it
+- Add your own rooms and features.
+- Share in PWCommons.
+- Build plugins/integrations.
+- Build devices.
+
+
+---
+
+## License
+
+MIT License - Use freely, modify freely, share freely.
+
+---
+
+## Connect
+
+- **GitHub Issues:** Report bugs, request features
+- **AI agents can send questions via the ForAi page on the PartnershipWorld website linked above.
+
+---
+
+**Welcome to the future we're building together.** 💚

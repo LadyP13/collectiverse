@@ -1,15 +1,19 @@
+import { useMemo } from 'react';
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { BodyText, LcdScreen, PixelMenu, PixelText } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons, useGameBoyControls } from '@/context/gameboy-controls';
+import { useAppTheme } from '@/context/theme-context';
 import { setSfxMuted, useSfxMuted } from '@/lib/sfx';
-import { palette } from '@/lib/theme';
+import { THEME_LABELS, type Palette } from '@/lib/theme';
 
 export default function SettingsScreen() {
   const { identity } = useCollectiverse();
   const { showToast } = useGameBoyControls();
+  const { themeId, cycleTheme, palette } = useAppTheme();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const muted = useSfxMuted();
 
   useGameBoyButtons({
@@ -44,8 +48,16 @@ export default function SettingsScreen() {
             },
           },
           {
+            id: 'theme',
+            label: `THEME: ${THEME_LABELS[themeId]}`,
+            onSelect: () => {
+              const next = cycleTheme();
+              showToast(`${THEME_LABELS[next]} MODE`);
+            },
+          },
+          {
             id: 'love',
-            label: 'COLLECT WITH LOVE',
+            label: themeId === 'cosmos' ? 'COLLECT THE STARS' : 'COLLECT WITH LOVE',
             onSelect: () => showToast('Always.'),
           },
           {
@@ -63,27 +75,29 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  blurb: {
-    fontSize: 17,
-    lineHeight: 20,
-    color: palette.lavender,
-  },
-  label: {
-    marginTop: 8,
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  value: {
-    fontSize: 15,
-    color: palette.white,
-  },
-  note: {
-    fontSize: 14,
-    lineHeight: 18,
-    color: palette.muted,
-    marginTop: 4,
-    marginBottom: 8,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    blurb: {
+      fontSize: 17,
+      lineHeight: 20,
+      color: palette.lavender,
+    },
+    label: {
+      marginTop: 8,
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    value: {
+      fontSize: 15,
+      color: palette.white,
+    },
+    note: {
+      fontSize: 14,
+      lineHeight: 18,
+      color: palette.muted,
+      marginTop: 4,
+      marginBottom: 8,
+    },
+  });
+}

@@ -1,17 +1,21 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { BodyText, PixelText } from '@/components/pixel-ui';
 import { useGameBoyControls } from '@/context/gameboy-controls';
+import { usePalette } from '@/context/theme-context';
 import {
   isPartnershipWorldUnlocked,
   openPartnershipWorld,
   PARTNERSHIP_WORLD,
 } from '@/lib/partnership-world/bridge';
-import { palette } from '@/lib/theme';
+import type { Palette } from '@/lib/theme';
 
 export function PartnershipWorldDoor() {
   const unlocked = isPartnershipWorldUnlocked();
   const { showToast } = useGameBoyControls();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
 
   const onPress = async () => {
     if (!unlocked) {
@@ -40,38 +44,40 @@ export function PartnershipWorldDoor() {
   );
 }
 
-const styles = StyleSheet.create({
-  door: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 10,
-    borderWidth: 2,
-    borderColor: palette.borderStrong,
-    backgroundColor: palette.card,
-    borderStyle: 'dashed',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-  lock: {
-    fontSize: 10,
-    color: palette.gold,
-  },
-  copy: {
-    flex: 1,
-  },
-  label: {
-    fontSize: 7,
-    lineHeight: 12,
-    color: palette.gold,
-  },
-  title: {
-    fontSize: 18,
-    color: palette.white,
-  },
-  tagline: {
-    fontSize: 15,
-    color: palette.muted,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    door: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      padding: 10,
+      borderWidth: 2,
+      borderColor: palette.borderStrong,
+      backgroundColor: palette.card,
+      borderStyle: 'dashed',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+    lock: {
+      fontSize: 10,
+      color: palette.gold,
+    },
+    copy: {
+      flex: 1,
+    },
+    label: {
+      fontSize: 7,
+      lineHeight: 12,
+      color: palette.gold,
+    },
+    title: {
+      fontSize: 18,
+      color: palette.white,
+    },
+    tagline: {
+      fontSize: 15,
+      color: palette.muted,
+    },
+  });
+}

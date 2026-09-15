@@ -12,6 +12,7 @@ import {
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
+import { useAppTheme } from '@/context/theme-context';
 import type { GameBoyButtonId } from '@/lib/gameboy-layout';
 import { playBeep } from '@/lib/sfx';
 import {
@@ -34,6 +35,7 @@ type GameBoyControlsValue = {
 const GameBoyControlsContext = createContext<GameBoyControlsValue | null>(null);
 
 export function GameBoyControlsProvider({ children }: { children: ReactNode }) {
+  const { themeId } = useAppTheme();
   const stack = useRef(new Set<HandlerRef>());
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -70,10 +72,10 @@ export function GameBoyControlsProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (id === 'heart') {
-        showToast('Collect with love');
+        showToast(themeId === 'cosmos' ? 'Collect the stars' : 'Collect with love');
       }
     },
-    [showToast],
+    [showToast, themeId],
   );
 
   const press = useCallback(

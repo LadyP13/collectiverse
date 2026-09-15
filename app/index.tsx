@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -6,15 +6,14 @@ import { router } from 'expo-router';
 import { BodyText, PixelMenu, PixelText } from '@/components/pixel-ui';
 import { useCollectiverse } from '@/context/collectiverse-context';
 import { useGameBoyButtons, useGameBoyControls } from '@/context/gameboy-controls';
+import { useAppTheme } from '@/context/theme-context';
 import {
   isPartnershipWorldUnlocked,
   openPartnershipWorld,
   PARTNERSHIP_WORLD,
 } from '@/lib/partnership-world/bridge';
 import { playDialup, stopDialup } from '@/lib/sfx';
-import { palette } from '@/lib/theme';
-
-const bootArt = require('../assets/images/lcd-boot.png');
+import { THEME_LABELS, type Palette } from '@/lib/theme';
 
 type HomeView = 'dial' | 'boot' | 'menu';
 
@@ -40,6 +39,8 @@ function statusFor(elapsed: number) {
 export default function SplashScreen() {
   const { ready, identity } = useCollectiverse();
   const { showToast } = useGameBoyControls();
+  const { themeId, cycleTheme, palette, assets } = useAppTheme();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const [view, setView] = useState<HomeView>(hasBooted ? 'menu' : 'dial');
   const [blink, setBlink] = useState(true);
   const [dialing, setDialing] = useState(false);
@@ -143,7 +144,7 @@ export default function SplashScreen() {
   if (view === 'boot') {
     return (
       <Pressable style={styles.boot} onPress={() => setView('menu')}>
-        <Image source={bootArt} style={StyleSheet.absoluteFill} contentFit="cover" />
+        <Image source={assets.boot} style={StyleSheet.absoluteFill} contentFit="cover" />
         {blink ? <PixelText style={styles.pressStart}>PRESS START</PixelText> : null}
       </Pressable>
     );
@@ -151,7 +152,7 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.screen}>
-      <Image source={bootArt} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image source={assets.boot} style={StyleSheet.absoluteFill} contentFit="cover" />
       <View style={styles.dim} />
       <PixelMenu
         items={[
@@ -174,6 +175,14 @@ export default function SplashScreen() {
               showToast(`${PARTNERSHIP_WORLD.name} · locked`);
             },
           },
+          {
+            id: 'theme',
+            label: `THEME: ${THEME_LABELS[themeId]}`,
+            onSelect: () => {
+              const next = cycleTheme();
+              showToast(`${THEME_LABELS[next]} MODE`);
+            },
+          },
           { id: 'settings', label: 'SETTINGS', onSelect: () => router.push('/settings') },
         ]}
         hint="D-PAD MOVE   A SELECT"
@@ -182,64 +191,66 @@ export default function SplashScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  dial: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: palette.lcd,
-    gap: 10,
-  },
-  dialTitle: {
-    fontSize: 10,
-    lineHeight: 16,
-    color: palette.accent,
-    textAlign: 'center',
-  },
-  dialSub: {
-    fontSize: 16,
-    color: palette.muted,
-    marginBottom: 16,
-  },
-  dialStatus: {
-    fontSize: 8,
-    lineHeight: 14,
-    color: palette.gold,
-    textAlign: 'center',
-  },
-  dialBar: {
-    fontSize: 8,
-    lineHeight: 14,
-    color: palette.lavender,
-    letterSpacing: 1,
-  },
-  dialHint: {
-    marginTop: 10,
-    fontSize: 18,
-    color: palette.gold,
-  },
-  boot: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: palette.lcd,
-  },
-  pressStart: {
-    marginBottom: 18,
-    fontSize: 10,
-    lineHeight: 16,
-    color: palette.gold,
-  },
-  screen: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    padding: 12,
-    gap: 8,
-    backgroundColor: palette.lcd,
-  },
-  dim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(8, 4, 24, 0.22)',
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    dial: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: palette.lcd,
+      gap: 10,
+    },
+    dialTitle: {
+      fontSize: 10,
+      lineHeight: 16,
+      color: palette.accent,
+      textAlign: 'center',
+    },
+    dialSub: {
+      fontSize: 16,
+      color: palette.muted,
+      marginBottom: 16,
+    },
+    dialStatus: {
+      fontSize: 8,
+      lineHeight: 14,
+      color: palette.gold,
+      textAlign: 'center',
+    },
+    dialBar: {
+      fontSize: 8,
+      lineHeight: 14,
+      color: palette.lavender,
+      letterSpacing: 1,
+    },
+    dialHint: {
+      marginTop: 10,
+      fontSize: 18,
+      color: palette.gold,
+    },
+    boot: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      backgroundColor: palette.lcd,
+    },
+    pressStart: {
+      marginBottom: 18,
+      fontSize: 10,
+      lineHeight: 16,
+      color: palette.gold,
+    },
+    screen: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      padding: 12,
+      gap: 8,
+      backgroundColor: palette.lcd,
+    },
+    dim: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(8, 4, 24, 0.22)',
+    },
+  });
+}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 
+import { useAppTheme } from '@/context/theme-context';
 import { useGameBoyControls } from '@/context/gameboy-controls';
 import {
   BUTTON_HINTS,
@@ -12,13 +13,13 @@ import {
   containFit,
   type GameBoyButtonId,
 } from '@/lib/gameboy-layout';
-import { palette } from '@/lib/theme';
+import type { Palette } from '@/lib/theme';
 import { BodyText, PixelText } from '@/components/pixel-ui';
-
-const chassis = require('../assets/images/gameboy-chassis.png');
 
 export function GameBoyShell({ children }: { children: ReactNode }) {
   const { press, toast } = useGameBoyControls();
+  const { palette, assets } = useAppTheme();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const [box, setBox] = useState({ width: 0, height: 0 });
   const [down, setDown] = useState<GameBoyButtonId | null>(null);
 
@@ -79,7 +80,7 @@ export function GameBoyShell({ children }: { children: ReactNode }) {
       {fit.w > 0 ? (
         <>
           <Image
-            source={chassis}
+            source={assets.chassis}
             style={{
               position: 'absolute',
               left: fit.x,
@@ -131,48 +132,50 @@ export function GameBoyShell({ children }: { children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: palette.chassis,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lcd: {
-    position: 'absolute',
-    overflow: 'hidden',
-    backgroundColor: palette.lcd,
-  },
-  scanlines: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.06)',
-    backgroundColor: 'transparent',
-  },
-  toast: {
-    position: 'absolute',
-    left: 10,
-    right: 10,
-    bottom: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    backgroundColor: 'rgba(12, 6, 36, 0.92)',
-    borderWidth: 2,
-    borderColor: palette.gold,
-  },
-  toastText: {
-    fontSize: 7,
-    lineHeight: 12,
-    textAlign: 'center',
-    color: palette.gold,
-  },
-  pressFlash: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    borderRadius: 8,
-  },
-  loading: {
-    fontSize: 18,
-    color: palette.white,
-  },
-});
+function makeStyles(palette: Palette) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: palette.chassis,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    lcd: {
+      position: 'absolute',
+      overflow: 'hidden',
+      backgroundColor: palette.lcd,
+    },
+    scanlines: {
+      ...StyleSheet.absoluteFillObject,
+      borderWidth: 2,
+      borderColor: 'rgba(255,255,255,0.06)',
+      backgroundColor: 'transparent',
+    },
+    toast: {
+      position: 'absolute',
+      left: 10,
+      right: 10,
+      bottom: 10,
+      paddingVertical: 6,
+      paddingHorizontal: 8,
+      backgroundColor: palette.lcd,
+      borderWidth: 2,
+      borderColor: palette.gold,
+    },
+    toastText: {
+      fontSize: 7,
+      lineHeight: 12,
+      textAlign: 'center',
+      color: palette.gold,
+    },
+    pressFlash: {
+      flex: 1,
+      backgroundColor: 'rgba(255, 255, 255, 0.22)',
+      borderRadius: 8,
+    },
+    loading: {
+      fontSize: 18,
+      color: palette.white,
+    },
+  });
+}
