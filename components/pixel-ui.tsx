@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -135,13 +135,8 @@ export function PixelMenu({
 }) {
   const styles = useStyles();
   const enabled = items.map((item, index) => ({ item, index })).filter((entry) => !entry.item.disabled);
-  const [selected, setSelected] = useState(enabled[0]?.index ?? 0);
-
-  useEffect(() => {
-    if (items[selected]?.disabled) {
-      setSelected(enabled[0]?.index ?? 0);
-    }
-  }, [enabled, items, selected]);
+  const [cursor, setCursor] = useState(enabled[0]?.index ?? 0);
+  const selected = items[cursor]?.disabled ? (enabled[0]?.index ?? 0) : cursor;
 
   const move = (dir: 1 | -1) => {
     if (enabled.length === 0) return;
@@ -150,7 +145,7 @@ export function PixelMenu({
       enabled.findIndex((entry) => entry.index === selected),
     );
     const next = enabled[(current + dir + enabled.length) % enabled.length];
-    setSelected(next.index);
+    setCursor(next.index);
   };
 
   useGameBoyButtons({
@@ -171,7 +166,7 @@ export function PixelMenu({
             <Pressable
               key={item.id}
               onPress={() => {
-                setSelected(index);
+                setCursor(index);
                 if (!item.disabled) {
                   playBeep('a');
                   item.onSelect();

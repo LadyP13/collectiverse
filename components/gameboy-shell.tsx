@@ -146,7 +146,7 @@ function makeStyles(palette: Palette) {
       backgroundColor: palette.lcd,
     },
     scanlines: {
-      ...StyleSheet.absoluteFillObject,
+      ...StyleSheet.absoluteFill,
       borderWidth: 2,
       borderColor: 'rgba(255,255,255,0.06)',
       backgroundColor: 'transparent',

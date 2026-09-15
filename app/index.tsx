@@ -249,7 +249,7 @@ function makeStyles(palette: Palette) {
       backgroundColor: palette.lcd,
     },
     dim: {
-      ...StyleSheet.absoluteFillObject,
+      ...StyleSheet.absoluteFill,
       backgroundColor: 'rgba(8, 4, 24, 0.22)',
     },
   });
