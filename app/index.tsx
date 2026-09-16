@@ -21,7 +21,7 @@ const DIAL_MS = 5200;
 const STATUS_LINES = [
   { at: 0, text: 'ATDT 1-800-VAULT' },
   { at: 700, text: 'DIALING.....' },
-  { at: 1800, text: 'RINGING.....' },
+  { at: 1800, text: 'RINGING....' },
   { at: 2800, text: 'HANDSHAKE...' },
   { at: 4800, text: 'CONNECTED!' },
 ] as const;
